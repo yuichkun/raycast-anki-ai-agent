@@ -1,6 +1,24 @@
 import { Tool } from "@raycast/api";
 import { getDeckMappings } from "../storage";
 import { checkAnkiConnection, addNote, findNotes, notesInfo } from "../ankiConnect";
+import MarkdownIt from "markdown-it";
+
+// Configure markdown-it for Anki cards
+const md = new MarkdownIt({
+  html: false, // Don't allow raw HTML in markdown (security)
+  breaks: true, // Convert \n to <br>
+  linkify: false, // Don't auto-convert URLs to links
+});
+
+/**
+ * Convert markdown to HTML suitable for Anki cards
+ */
+function markdownToAnkiHtml(markdown: string): string {
+  // Render markdown to HTML
+  const html = md.render(markdown);
+  // Remove wrapping <p> tags that markdown-it adds, as Anki handles spacing differently
+  return html.replace(/^<p>|<\/p>\n?$/g, "").trim();
+}
 
 type Input = {
   /**
@@ -60,9 +78,10 @@ export default async function tool(input: Input): Promise<string> {
   }
 
   // Build fields object
+  // Convert markdown to HTML for Anki
   const fields: Record<string, string> = {
-    Front: input.Front.trim(),
-    Back: input.Back.trim(),
+    Front: markdownToAnkiHtml(input.Front),
+    Back: markdownToAnkiHtml(input.Back),
   };
 
   // Parse tags
