@@ -31,9 +31,6 @@
       "description": "Add a new card to Anki using a configured deck ID. The card will use the deck's pre-configured note type and should follow the deck's template guidelines."
     }
   ],
-  "ai": {
-    "instructions": "When the user wants to add a card to Anki:\n\n1. ALWAYS call get-deck-configurations FIRST to retrieve:\n   - Available deck IDs, names, and purposes\n   - Note type for each deck (Basic or Basic (and reversed card))\n   - Front and back card templates (formatting guidelines)\n   - Front and back card examples\n\n2. Select the appropriate deck ID based on:\n   - The user's content\n   - The deck's stated purpose\n\n3. Format the Front and Back fields according to:\n   - The deck's front template and back template (use these as formatting guidelines)\n   - The deck's front example and back example (use these as reference)\n\n4. Call add-card with:\n   - The selected deck ID\n   - The formatted Front field\n   - The formatted Back field\n   - Optional tags if applicable\n\n5. The note type is pre-configured per deck and will be applied automatically\n6. The confirmation will be shown automatically before creating the card"
-  },
   "dependencies": {
     "@raycast/api": "^1.103.5",
     "@raycast/utils": "^1.17.0",

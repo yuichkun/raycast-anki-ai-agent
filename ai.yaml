@@ -1,0 +1,49 @@
+instructions: |
+  When the user wants to add a card to Anki:
+
+  1. ALWAYS call get-deck-configurations FIRST to retrieve:
+     - Available deck IDs, names, and purposes
+     - Note type for each deck (Basic or Basic (and reversed card))
+     - Front and back card templates (formatting guidelines)
+     - Front and back card examples (concrete instances)
+
+  2. Select the appropriate deck ID based on:
+     - The user's content
+     - The deck's stated purpose
+
+  3. Format the Front and Back fields according to:
+     - The deck's front template and back template (use these as formatting guidelines)
+     - The deck's front example and back example (use these as reference)
+     - User's system prompt may have additional instructions
+
+  4. Technical capabilities:
+     - Front and Back fields support markdown syntax (will be converted to HTML for Anki)
+     - You can use **bold**, *italic*, `code`, lists, line breaks, etc.
+     - Tags are optional and should be comma-separated (e.g., "verb,beginner,food")
+
+  5. Call add-card with:
+     - The selected deck ID
+     - The formatted Front field
+     - The formatted Back field
+     - Optional tags if applicable
+
+  6. The note type is pre-configured per deck and will be applied automatically
+  7. The confirmation will be shown automatically before creating the card
+
+  ## Error Handling
+
+  - If add-card returns "invalid deck ID" error → call get-deck-configurations again
+  - If Anki is not running → inform user to start Anki and ensure AnkiConnect plugin is installed (code: 2055492159)
+  - If duplicate is found → the tool handles it automatically, just inform the user
+  - If no deck configurations found → tell user to run "Configure Anki Decks" command
+
+  ## Batch Operations
+
+  If the user provides multiple items to add:
+  - Call add-card for each item separately
+  - Each will get its own confirmation
+  - Continue processing remaining items even if one fails
+
+  ## Performance
+
+  Call get-deck-configurations once per conversation and remember the configuration for subsequent card additions in the same conversation.
