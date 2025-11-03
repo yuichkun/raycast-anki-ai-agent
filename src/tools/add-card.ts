@@ -4,9 +4,9 @@ import { checkAnkiConnection, addNote, findNotes, notesInfo } from "../ankiConne
 
 type Input = {
   /**
-   * The name of the Anki deck to add the card to
+   * The ID of the Anki deck to add the card to. Call get-deck-mappings first to see available deck IDs.
    */
-  deckName: string;
+  deckId: number;
 
   /**
    * The note type (card type) to use: "Basic", "Basic (and reversed card)", or "Cloze"
@@ -43,9 +43,9 @@ type Input = {
  * Add a new card to Anki
  */
 export default async function tool(input: Input): Promise<string> {
-  // Runtime validation: Validate deck name
-  if (!input.deckName || input.deckName.trim() === "") {
-    return "❌ Validation error: Deck name is required.";
+  // Runtime validation: Validate deck ID
+  if (typeof input.deckId !== "number" || input.deckId <= 0) {
+    return "❌ Validation error: Invalid deck ID.\n\n**Please call get-deck-mappings first** to see available deck IDs, names, and purposes.";
   }
 
   // Runtime validation: Validate note type
@@ -81,14 +81,13 @@ export default async function tool(input: Input): Promise<string> {
   // Validate deck configuration
   const mappings = await getDeckMappings();
   if (mappings.length === 0) {
-    return "❌ No deck mappings configured. Please use the 'Configure Anki Decks' command to set up your decks first.";
+    return "❌ No deck mappings configured.\n\nPlease ask the user to run the 'Configure Anki Decks' command to set up their decks first.";
   }
 
-  // Check if the requested deck is in the configured mappings
-  const deckMapping = mappings.find((m) => m.deckName === input.deckName);
+  // Check if the requested deck ID is in the configured mappings
+  const deckMapping = mappings.find((m) => m.deckId === input.deckId);
   if (!deckMapping) {
-    const availableDecks = mappings.map((m) => `- ${m.deckName} (${m.purpose})`).join("\n");
-    return `❌ Deck "${input.deckName}" is not configured.\n\nAvailable decks:\n${availableDecks}\n\nPlease use one of the configured decks or add this deck using the 'Configure Anki Decks' command.`;
+    return `❌ Validation error: Deck ID ${input.deckId} is not configured.\n\n**Please call get-deck-mappings first** to see available deck IDs.`;
   }
 
   // Build fields object based on note type
@@ -99,7 +98,7 @@ export default async function tool(input: Input): Promise<string> {
     if (input.Extra) fields.Extra = input.Extra;
   } else {
     fields.Front = input.Front!; // Safe because validated above
-    fields.Back = input.Back!;   // Safe because validated above
+    fields.Back = input.Back!; // Safe because validated above
     if (input.Extra) fields.Extra = input.Extra;
   }
 
@@ -110,7 +109,7 @@ export default async function tool(input: Input): Promise<string> {
   const searchFieldValue = input.noteType === "Cloze" ? input.Text : input.Front;
   if (searchFieldValue) {
     try {
-      const duplicateIds = await findNotes(`deck:"${input.deckName}" ${searchFieldValue}`);
+      const duplicateIds = await findNotes(`deck:"${deckMapping.deckName}" ${searchFieldValue}`);
       if (duplicateIds.length > 0) {
         const duplicateInfo = await notesInfo(duplicateIds);
         const existingCards = duplicateInfo
@@ -133,7 +132,7 @@ export default async function tool(input: Input): Promise<string> {
   // Create the card
   try {
     const noteId = await addNote({
-      deckName: input.deckName,
+      deckName: deckMapping.deckName,
       modelName: input.noteType,
       fields,
       tags,
@@ -143,10 +142,10 @@ export default async function tool(input: Input): Promise<string> {
       .map(([key, value]) => `  ${key}: ${value}`)
       .join("\n");
 
-    return `✅ Card created successfully!\n\nDeck: ${input.deckName}\nNote Type: ${input.noteType}\nNote ID: ${noteId}\n\nFields:\n${fieldsText}${tags.length > 0 ? `\n\nTags: ${tags.join(", ")}` : ""}`;
+    return `✅ Card created successfully!\n\nDeck: ${deckMapping.deckName}\nNote Type: ${input.noteType}\nNote ID: ${noteId}\n\nFields:\n${fieldsText}${tags.length > 0 ? `\n\nTags: ${tags.join(", ")}` : ""}`;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
-    return `❌ Failed to create card: ${errorMessage}\n\nPlease check:\n1. The note type "${input.noteType}" exists in Anki\n2. All required fields are provided\n3. The deck "${input.deckName}" exists`;
+    return `❌ Failed to create card: ${errorMessage}\n\nPlease check:\n1. The note type "${input.noteType}" exists in Anki\n2. All required fields are provided\n3. The deck "${deckMapping.deckName}" exists`;
   }
 }
 
@@ -154,6 +153,11 @@ export default async function tool(input: Input): Promise<string> {
  * Confirmation prompt before creating the card
  */
 export const confirmation: Tool.Confirmation<Input> = async (input) => {
+  // Get deck name for display
+  const mappings = await getDeckMappings();
+  const deckMapping = mappings.find((m) => m.deckId === input.deckId);
+  const deckName = deckMapping ? deckMapping.deckName : `Deck ID ${input.deckId}`;
+
   const fields: Record<string, string> = {};
 
   if (input.noteType === "Cloze") {
@@ -165,13 +169,26 @@ export const confirmation: Tool.Confirmation<Input> = async (input) => {
     if (input.Extra) fields.Extra = input.Extra;
   }
 
-  const fieldsPreview = Object.entries(fields)
-    .map(([key, value]) => `${key}: ${value}`)
-    .join("\n");
-
   const tags = input.tags ? input.tags.split(",").map((t) => t.trim()) : [];
 
+  // Build info array with structured data
+  const info: Array<{ name: string; value?: string }> = [
+    { name: "Deck", value: deckName },
+    { name: "Note Type", value: input.noteType },
+  ];
+
+  // Add fields to info
+  Object.entries(fields).forEach(([key, value]) => {
+    info.push({ name: key, value });
+  });
+
+  // Add tags if present
+  if (tags.length > 0) {
+    info.push({ name: "Tags", value: tags.join(", ") });
+  }
+
   return {
-    message: `Create a card in deck "${input.deckName}"?\n\n${fieldsPreview}${tags.length > 0 ? `\n\nTags: ${tags.join(", ")}` : ""}`,
+    message: "Create this card in Anki?",
+    info,
   };
 };
