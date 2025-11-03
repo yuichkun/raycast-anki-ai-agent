@@ -47,18 +47,44 @@ A Raycast AI extension that enables Raycast AI to add cards to Anki deck(s) in f
 
 ## Extension Components
 
-### 1. AI Tool: `add-card`
+### 1. AI Tool: `get-deck-mappings`
+
+A read-only AI tool that allows the AI to discover available decks:
+- Returns list of configured deck mappings with ID, name, and purpose
+- AI must call this FIRST before calling `add-card`
+- Helps AI select the appropriate deck based on user's content and deck purposes
+- No side effects, just returns current configuration
+
+**Output Format:**
+```json
+[
+  {
+    "id": 1234567890,
+    "name": "Japanese::Vocabulary",
+    "purpose": "for Japanese vocabulary words"
+  },
+  {
+    "id": 9876543210,
+    "name": "Spanish::Grammar",
+    "purpose": "for Spanish grammar concepts"
+  }
+]
+```
+
+### 2. AI Tool: `add-card`
 
 A single AI tool that handles the entire card creation workflow:
 - Receives content from user via Raycast AI
-- Determines appropriate deck from pre-configured mappings
+- Accepts deck ID (number) from configured mappings
+- Validates deck ID against current mappings (prevents accidental use of unconfigured decks)
 - Formats card based on user's system prompt configuration
 - Automatically checks for duplicates before creating
-- Shows confirmation with preview
+- Shows confirmation with preview (displays deck name for clarity)
 - If duplicate found: offers to update existing or create new
 - Creates or updates card in Anki via AnkiConnect
+- If called with invalid deck ID: returns helpful error message instructing AI to call `get-deck-mappings` first
 
-### 2. Configuration Command
+### 3. Configuration Command
 
 A separate Raycast command (non-AI) that provides a List interface where users can:
 - View their configured deck mappings
@@ -105,22 +131,29 @@ The extension communicates with Anki via AnkiConnect API on:
 
 ```mermaid
 flowchart TD
-    A[User provides content to Raycast AI] --> B[Tool determines deck from mapping]
-    B --> C[Format card per system prompt]
-    C --> D[Check for duplicates]
-    D --> E{Duplicate found?}
-    E -->|No| F[Show card preview]
-    E -->|Yes| G[Show existing card + options]
-    F --> H{User confirms?}
-    G --> I{User choice}
-    I -->|Update existing| J[Update card]
-    I -->|Create anyway| F
-    I -->|Cancel| K[Cancel operation]
-    H -->|Yes| L[Add card to Anki]
-    H -->|No| K
-    J --> M[Success]
-    L --> M
-    K --> N[Operation cancelled]
+    A[User provides content to Raycast AI] --> B[AI calls get-deck-mappings]
+    B --> C[AI receives list of configured decks with IDs, names, purposes]
+    C --> D[AI selects appropriate deck ID based on content and purposes]
+    D --> E[AI calls add-card with deck ID and card content]
+    E --> F[Validate deck ID against current mappings]
+    F --> G{Valid deck ID?}
+    G -->|No| H[Return error: call get-deck-mappings first]
+    G -->|Yes| I[Format card per system prompt]
+    I --> J[Check for duplicates]
+    J --> K{Duplicate found?}
+    K -->|No| L[Show card preview with deck name]
+    K -->|Yes| M[Show existing card + options]
+    L --> N{User confirms?}
+    M --> O{User choice}
+    O -->|Update existing| P[Update card]
+    O -->|Create anyway| L
+    O -->|Cancel| Q[Cancel operation]
+    N -->|Yes| R[Add card to Anki]
+    N -->|No| Q
+    P --> S[Success]
+    R --> S
+    Q --> T[Operation cancelled]
+    H --> T
 ```
 
 ### Configuration Flow
@@ -154,9 +187,9 @@ flowchart TD
 ### Deck Mapping Storage
 ```typescript
 interface DeckMapping {
-  deckId: string;
-  deckName: string;
-  purpose: string;
+  deckId: number;  // Anki deck ID (unique identifier)
+  deckName: string;  // Human-readable deck name
+  purpose: string;  // Description to help AI select appropriate deck
 }
 ```
 
@@ -173,10 +206,20 @@ interface CardConfirmation {
 ## Implementation Structure
 
 The extension will include:
-- One AI tool (`add-card`) configured in `package.json`
+- Two AI tools configured in `package.json`:
+  - `get-deck-mappings`: Read-only tool to retrieve configured decks
+  - `add-card`: Tool to create cards using deck IDs
 - One configuration command as a separate Raycast command
 - AnkiConnect client for HTTP communication
 - Storage utilities for deck mappings
+
+## AI Instructions
+
+The AI should follow this workflow:
+1. When user requests to add a card, ALWAYS call `get-deck-mappings` first
+2. Analyze the returned deck list (ID, name, purpose) to select the most appropriate deck
+3. Call `add-card` with the selected deck ID and card content
+4. If `add-card` returns an error about invalid deck ID, retry from step 1
 
 ## Success Criteria
 
