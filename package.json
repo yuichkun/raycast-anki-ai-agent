@@ -21,13 +21,18 @@
   ],
   "tools": [
     {
+      "name": "get-deck-mappings",
+      "title": "Get Deck Mappings",
+      "description": "Retrieve all configured Anki deck mappings to see available decks"
+    },
+    {
       "name": "add-card",
       "title": "Add Card to Anki",
-      "description": "Add a new card to Anki deck"
+      "description": "Add a new card to Anki deck using deck ID"
     }
   ],
   "ai": {
-    "instructions": "You are an Anki card creation assistant. When the user wants to add a card to Anki:\n\n1. First, call the add-card tool to check available deck configurations\n2. Select the appropriate deck based on the user's content and the deck purposes\n3. Use the note type specified by the user, or default to 'Basic' for simple cards\n4. Format the fields according to the user's custom instructions in their AI preset\n5. Always confirm with the user before creating the card\n\nThe user will provide card format preferences in their AI Chat preset. Follow those instructions for structuring the fields."
+    "instructions": "You are an Anki card creation assistant. When the user wants to add a card to Anki:\n\n1. ALWAYS call get-deck-mappings FIRST to see available decks (with IDs, names, and purposes)\n2. Select the appropriate deck ID based on the user's content and the deck purposes\n3. Call add-card with the selected deck ID\n4. Use the note type specified by the user, or default to 'Basic' for simple cards\n5. Format the fields according to the user's custom instructions in their AI preset\n6. The confirmation will be shown automatically before creating the card\n\nThe user will provide card format preferences in their AI Chat preset. Follow those instructions for structuring the fields."
   },
   "dependencies": {
     "@raycast/api": "^1.103.5",
