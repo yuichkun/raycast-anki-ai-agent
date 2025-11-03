@@ -8,24 +8,30 @@ export default async function tool(): Promise<string> {
   const mappings = await getDeckMappings();
 
   if (mappings.length === 0) {
-    return "No deck configurations found.\n\nPlease ask the user to run the 'Configure Anki Decks' command to set up their decks first.";
+    return JSON.stringify(
+      {
+        error: "No deck configurations found. Please ask the user to run the 'Configure Anki Decks' command to set up their decks first.",
+      },
+      null,
+      2
+    );
   }
 
-  // Return formatted list of decks with complete configuration
-  const deckList = mappings
-    .map((mapping) => {
-      return `### Deck ID: ${mapping.deckId}
-**Name:** ${mapping.deckName}
-**Purpose:** ${mapping.purpose}
-**Note Type:** ${mapping.noteType}
+  // Return structured JSON with all deck configurations
+  const result = {
+    decks: mappings.map((mapping) => ({
+      deckId: mapping.deckId,
+      deckName: mapping.deckName,
+      purpose: mapping.purpose,
+      noteType: mapping.noteType,
+      frontTemplate: mapping.frontTemplate,
+      frontExample: mapping.frontExample,
+      backTemplate: mapping.backTemplate,
+      backExample: mapping.backExample,
+    })),
+    instructions:
+      "Select the appropriate deck ID based on the user's content and the deck's purpose. Use the templates and examples as guidelines for formatting card fields.",
+  };
 
-**Front Template:** ${mapping.frontTemplate}
-**Front Example:** ${mapping.frontExample}
-
-**Back Template:** ${mapping.backTemplate}
-**Back Example:** ${mapping.backExample}`;
-    })
-    .join("\n\n---\n\n");
-
-  return `Available deck configurations:\n\n${deckList}\n\n**Instructions:** Select the appropriate deck ID based on the user's content and the deck's purpose. Use the templates and examples as guidelines for formatting card fields.`;
+  return JSON.stringify(result, null, 2);
 }
