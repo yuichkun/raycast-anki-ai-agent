@@ -13,10 +13,10 @@
   "license": "MIT",
   "commands": [
     {
-      "name": "list-decks",
-      "title": "list-decks",
-      "description": "",
-      "mode": "no-view"
+      "name": "configure-decks",
+      "title": "Configure Anki Decks",
+      "description": "Configure deck mappings for Anki card creation",
+      "mode": "view"
     }
   ],
   "dependencies": {
