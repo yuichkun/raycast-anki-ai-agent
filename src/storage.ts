@@ -4,6 +4,11 @@ export interface DeckMapping {
   deckId: number;
   deckName: string;
   purpose: string;
+  noteType: "Basic" | "Basic (and reversed card)";
+  frontTemplate: string;
+  backTemplate: string;
+  frontExample: string;
+  backExample: string;
 }
 
 const DECK_MAPPINGS_KEY = "deck-mappings";

@@ -167,12 +167,28 @@ function AddDeckMappingForm({ onMappingAdded }: AddDeckMappingFormProps) {
     }
   }
 
-  async function handleSubmit(values: { deckId: string; purpose: string }) {
-    if (!values.deckId || !values.purpose.trim()) {
+  async function handleSubmit(values: {
+    deckId: string;
+    purpose: string;
+    noteType: string;
+    frontTemplate: string;
+    backTemplate: string;
+    frontExample: string;
+    backExample: string;
+  }) {
+    if (
+      !values.deckId ||
+      !values.purpose.trim() ||
+      !values.noteType ||
+      !values.frontTemplate.trim() ||
+      !values.backTemplate.trim() ||
+      !values.frontExample.trim() ||
+      !values.backExample.trim()
+    ) {
       await showToast({
         style: Toast.Style.Failure,
         title: "Invalid input",
-        message: "Please select a deck and enter a purpose",
+        message: "Please fill in all required fields",
       });
       return;
     }
@@ -193,6 +209,11 @@ function AddDeckMappingForm({ onMappingAdded }: AddDeckMappingFormProps) {
         deckId: deck.id,
         deckName: deck.name,
         purpose: values.purpose.trim(),
+        noteType: values.noteType as "Basic" | "Basic (and reversed card)",
+        frontTemplate: values.frontTemplate.trim(),
+        backTemplate: values.backTemplate.trim(),
+        frontExample: values.frontExample.trim(),
+        backExample: values.backExample.trim(),
       });
 
       await showToast({
@@ -236,6 +257,39 @@ function AddDeckMappingForm({ onMappingAdded }: AddDeckMappingFormProps) {
         title="Purpose"
         placeholder="e.g., for Japanese vocabulary"
         info="Describe what this deck is for to help AI select the right deck"
+      />
+
+      <Form.Dropdown id="noteType" title="Note Type" info="Card type to use for this deck">
+        <Form.Dropdown.Item value="Basic" title="Basic" />
+        <Form.Dropdown.Item value="Basic (and reversed card)" title="Basic (and reversed card)" />
+      </Form.Dropdown>
+
+      <Form.TextArea
+        id="frontTemplate"
+        title="Front Template"
+        placeholder="e.g., Japanese word in hiragana with romaji in parentheses"
+        info="Describe how the front of the card should be formatted"
+      />
+
+      <Form.TextArea
+        id="backTemplate"
+        title="Back Template"
+        placeholder="e.g., English translation with example sentence"
+        info="Describe how the back of the card should be formatted"
+      />
+
+      <Form.TextArea
+        id="frontExample"
+        title="Front Example"
+        placeholder="e.g., 食べる (taberu)"
+        info="Show an example of a front card"
+      />
+
+      <Form.TextArea
+        id="backExample"
+        title="Back Example"
+        placeholder="e.g., to eat - Example: 私は朝ごはんを食べます"
+        info="Show an example of a back card"
       />
     </Form>
   );
