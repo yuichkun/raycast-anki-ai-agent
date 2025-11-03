@@ -112,6 +112,11 @@ export default function ConfigureDecks() {
           actions={
             <ActionPanel>
               <Action.Push
+                title="Edit Configuration"
+                icon={Icon.Pencil}
+                target={<EditDeckMappingForm mapping={mapping} onMappingUpdated={loadMappings} />}
+              />
+              <Action.Push
                 title="Add Deck Mapping"
                 icon={Icon.Plus}
                 target={<AddDeckMappingForm onMappingAdded={loadMappings} />}
@@ -289,6 +294,177 @@ function AddDeckMappingForm({ onMappingAdded }: AddDeckMappingFormProps) {
         id="backExample"
         title="Back Example"
         placeholder="e.g., to eat - Example: 私は朝ごはんを食べます"
+        info="Show an example of a back card"
+      />
+    </Form>
+  );
+}
+
+interface EditDeckMappingFormProps {
+  mapping: DeckMapping;
+  onMappingUpdated: () => Promise<void>;
+}
+
+function EditDeckMappingForm({ mapping, onMappingUpdated }: EditDeckMappingFormProps) {
+  const { pop } = useNavigation();
+  const [decks, setDecks] = useState<DeckInfo[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [existingMappings, setExistingMappings] = useState<Set<number>>(new Set());
+
+  useEffect(() => {
+    loadDecks();
+  }, []);
+
+  async function loadDecks() {
+    try {
+      setIsLoading(true);
+
+      const availableDecks = await getDecks();
+      setDecks(availableDecks);
+
+      const mappings = await getDeckMappings();
+      // Exclude current deck from the "already mapped" set so it appears in the dropdown
+      setExistingMappings(new Set(mappings.filter((m) => m.deckId !== mapping.deckId).map((m) => m.deckId)));
+    } catch (error) {
+      await showToast({
+        style: Toast.Style.Failure,
+        title: "Failed to load decks",
+        message: error instanceof Error ? error.message : "Unknown error",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function handleSubmit(values: {
+    deckId: string;
+    purpose: string;
+    noteType: string;
+    frontTemplate: string;
+    backTemplate: string;
+    frontExample: string;
+    backExample: string;
+  }) {
+    if (
+      !values.deckId ||
+      !values.purpose.trim() ||
+      !values.noteType ||
+      !values.frontTemplate.trim() ||
+      !values.backTemplate.trim() ||
+      !values.frontExample.trim() ||
+      !values.backExample.trim()
+    ) {
+      await showToast({
+        style: Toast.Style.Failure,
+        title: "Invalid input",
+        message: "Please fill in all required fields",
+      });
+      return;
+    }
+
+    const newDeckId = parseInt(values.deckId, 10);
+    const deck = decks.find((d) => d.id === newDeckId);
+
+    if (!deck) {
+      await showToast({
+        style: Toast.Style.Failure,
+        title: "Deck not found",
+      });
+      return;
+    }
+
+    try {
+      // If deck changed, remove old mapping first
+      if (newDeckId !== mapping.deckId) {
+        await removeDeckMapping(mapping.deckId);
+      }
+
+      await addDeckMapping({
+        deckId: deck.id,
+        deckName: deck.name,
+        purpose: values.purpose.trim(),
+        noteType: values.noteType as "Basic" | "Basic (and reversed card)",
+        frontTemplate: values.frontTemplate.trim(),
+        backTemplate: values.backTemplate.trim(),
+        frontExample: values.frontExample.trim(),
+        backExample: values.backExample.trim(),
+      });
+
+      await showToast({
+        style: Toast.Style.Success,
+        title: "Configuration updated",
+      });
+
+      pop();
+      await onMappingUpdated();
+    } catch (error) {
+      await showToast({
+        style: Toast.Style.Failure,
+        title: "Failed to update configuration",
+        message: error instanceof Error ? error.message : "Unknown error",
+      });
+    }
+  }
+
+  const availableDecks = decks.filter((deck) => !existingMappings.has(deck.id));
+
+  return (
+    <Form
+      isLoading={isLoading}
+      actions={
+        <ActionPanel>
+          <Action.SubmitForm title="Update Configuration" icon={Icon.Check} onSubmit={handleSubmit} />
+        </ActionPanel>
+      }
+    >
+      <Form.Dropdown id="deckId" title="Deck" defaultValue={mapping.deckId.toString()}>
+        {availableDecks.map((deck) => (
+          <Form.Dropdown.Item key={deck.id} value={deck.id.toString()} title={deck.name} />
+        ))}
+      </Form.Dropdown>
+
+      <Form.TextField
+        id="purpose"
+        title="Purpose"
+        placeholder="e.g., for Japanese vocabulary"
+        defaultValue={mapping.purpose}
+        info="Describe what this deck is for to help AI select the right deck"
+      />
+
+      <Form.Dropdown id="noteType" title="Note Type" defaultValue={mapping.noteType} info="Card type to use for this deck">
+        <Form.Dropdown.Item value="Basic" title="Basic" />
+        <Form.Dropdown.Item value="Basic (and reversed card)" title="Basic (and reversed card)" />
+      </Form.Dropdown>
+
+      <Form.TextArea
+        id="frontTemplate"
+        title="Front Template"
+        placeholder="e.g., Japanese word in hiragana with romaji in parentheses"
+        defaultValue={mapping.frontTemplate}
+        info="Describe how the front of the card should be formatted"
+      />
+
+      <Form.TextArea
+        id="backTemplate"
+        title="Back Template"
+        placeholder="e.g., English translation with example sentence"
+        defaultValue={mapping.backTemplate}
+        info="Describe how the back of the card should be formatted"
+      />
+
+      <Form.TextArea
+        id="frontExample"
+        title="Front Example"
+        placeholder="e.g., 食べる (taberu)"
+        defaultValue={mapping.frontExample}
+        info="Show an example of a front card"
+      />
+
+      <Form.TextArea
+        id="backExample"
+        title="Back Example"
+        placeholder="e.g., to eat - Example: 私は朝ごはんを食べます"
+        defaultValue={mapping.backExample}
         info="Show an example of a back card"
       />
     </Form>
