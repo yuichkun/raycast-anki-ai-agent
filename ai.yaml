@@ -1,19 +1,18 @@
 instructions: |
   When the user wants to add a card to Anki:
 
-  1. ALWAYS call get-deck-configurations FIRST to retrieve:
-     - Available deck IDs, names, and purposes
-     - Note type for each deck (Basic or Basic (and reversed card))
-     - Front and back card templates (formatting guidelines)
-     - Front and back card examples (concrete instances)
+  1. ALWAYS call get-deck-configurations FIRST
+     - Returns JSON with deck configurations in the `decks` array
+     - Each deck has: deckId, deckName, purpose, noteType, frontTemplate, frontExample, backTemplate, backExample
+     - If error field is present, inform the user to configure decks
 
   2. Select the appropriate deck ID based on:
      - The user's content
      - The deck's stated purpose
 
   3. Format the Front and Back fields according to:
-     - The deck's front template and back template (use these as formatting guidelines)
-     - The deck's front example and back example (use these as reference)
+     - The deck's frontTemplate and backTemplate (use these as formatting guidelines)
+     - The deck's frontExample and backExample (use these as reference)
      - User's system prompt may have additional instructions
 
   4. Technical capabilities:
@@ -22,7 +21,7 @@ instructions: |
      - Tags are optional and should be comma-separated (e.g., "verb,beginner,food")
 
   5. Call add-card with:
-     - The selected deck ID
+     - The selected deckId (number)
      - The formatted Front field
      - The formatted Back field
      - Optional tags if applicable
@@ -32,10 +31,10 @@ instructions: |
 
   ## Error Handling
 
+  - If get-deck-configurations returns JSON with "error" field → tell user to run "Configure Anki Decks" command
   - If add-card returns "invalid deck ID" error → call get-deck-configurations again
   - If Anki is not running → inform user to start Anki and ensure AnkiConnect plugin is installed (code: 2055492159)
   - If duplicate is found → the tool handles it automatically, just inform the user
-  - If no deck configurations found → tell user to run "Configure Anki Decks" command
 
   ## Batch Operations
 
@@ -47,3 +46,83 @@ instructions: |
   ## Performance
 
   Call get-deck-configurations once per conversation and remember the configuration for subsequent card additions in the same conversation.
+
+evals:
+  - input: "@anki-helper Add a Japanese vocabulary card: 食べる (taberu) means 'to eat'"
+    mocks:
+      get-deck-configurations: |
+        {
+          "decks": [
+            {
+              "deckId": 1234567890,
+              "deckName": "Japanese::Vocabulary",
+              "purpose": "for Japanese vocabulary words",
+              "noteType": "Basic (and reversed card)",
+              "frontTemplate": "Japanese word in hiragana with romaji in parentheses",
+              "frontExample": "食べる (taberu)",
+              "backTemplate": "English translation with example sentence",
+              "backExample": "to eat - Example: 私は朝ごはんを食べます (I eat breakfast)"
+            }
+          ],
+          "instructions": "Select the appropriate deck ID based on the user's content and the deck's purpose."
+        }
+    expected:
+      - callsTool: get-deck-configurations
+      - callsTool: add-card
+    usedAsExample: true
+
+  - input: "@anki-helper Add these Spanish words: casa (house), perro (dog), gato (cat)"
+    mocks:
+      get-deck-configurations: |
+        {
+          "decks": [
+            {
+              "deckId": 9876543210,
+              "deckName": "Spanish::Vocabulary",
+              "purpose": "for Spanish vocabulary",
+              "noteType": "Basic (and reversed card)",
+              "frontTemplate": "Spanish word",
+              "frontExample": "casa",
+              "backTemplate": "English translation",
+              "backExample": "house"
+            }
+          ],
+          "instructions": "Select the appropriate deck ID based on the user's content and the deck's purpose."
+        }
+    expected:
+      - callsTool: get-deck-configurations
+      - callsTool: add-card
+    usedAsExample: true
+
+  - input: "@anki-helper Create a card about the subjunctive mood in Spanish"
+    mocks:
+      get-deck-configurations: |
+        {
+          "decks": [
+            {
+              "deckId": 1111111111,
+              "deckName": "Spanish::Grammar",
+              "purpose": "for Spanish grammar concepts",
+              "noteType": "Basic",
+              "frontTemplate": "Grammar concept name or question",
+              "frontExample": "When do you use the subjunctive mood?",
+              "backTemplate": "Explanation with examples",
+              "backExample": "Used for wishes, doubts, emotions. Example: Espero que **vengas** (I hope you come)"
+            }
+          ],
+          "instructions": "Select the appropriate deck ID based on the user's content and the deck's purpose."
+        }
+    expected:
+      - callsTool: get-deck-configurations
+      - callsTool: add-card
+    usedAsExample: true
+
+  - input: "@anki-helper Add a card"
+    mocks:
+      get-deck-configurations: |
+        {
+          "error": "No deck configurations found. Please ask the user to run the 'Configure Anki Decks' command to set up their decks first."
+        }
+    expected:
+      - includes: "Configure Anki Decks"
+    usedAsExample: false
