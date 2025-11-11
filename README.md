@@ -1,4 +1,4 @@
-# Anki Helper
+# Raycast Anki AI Agent
 
 A Raycast AI extension that lets you create Anki flashcards through natural conversation.
 

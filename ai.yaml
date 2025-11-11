@@ -48,7 +48,7 @@ instructions: |
   Call get-deck-configurations once per conversation and remember the configuration for subsequent card additions in the same conversation.
 
 evals:
-  - input: "@anki-helper Add a Japanese vocabulary card: 食べる (taberu) means 'to eat'"
+  - input: "@anki-ai-agent Add a Japanese vocabulary card: 食べる (taberu) means 'to eat'"
     mocks:
       get-deck-configurations: |
         {
@@ -71,7 +71,7 @@ evals:
       - callsTool: add-card
     usedAsExample: true
 
-  - input: "@anki-helper Add these Spanish words: casa (house), perro (dog), gato (cat)"
+  - input: "@anki-ai-agent Add these Spanish words: casa (house), perro (dog), gato (cat)"
     mocks:
       get-deck-configurations: |
         {
@@ -94,7 +94,7 @@ evals:
       - callsTool: add-card
     usedAsExample: true
 
-  - input: "@anki-helper Create a card about the subjunctive mood in Spanish"
+  - input: "@anki-ai-agent Create a card about the subjunctive mood in Spanish"
     mocks:
       get-deck-configurations: |
         {
@@ -117,7 +117,7 @@ evals:
       - callsTool: add-card
     usedAsExample: true
 
-  - input: "@anki-helper Add a card"
+  - input: "@anki-ai-agent Add a card"
     mocks:
       get-deck-configurations: |
         {
