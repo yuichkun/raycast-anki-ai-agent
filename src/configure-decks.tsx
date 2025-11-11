@@ -264,7 +264,7 @@ function AddDeckConfigurationForm({ onConfigurationAdded }: AddDeckConfiguration
         )}
       </Form.Dropdown>
 
-      <Form.TextField
+      <Form.TextArea
         id="purpose"
         title="Purpose"
         placeholder="e.g., for Japanese vocabulary"
@@ -432,7 +432,7 @@ function EditDeckConfigurationForm({ configuration, onConfigurationUpdated }: Ed
         ))}
       </Form.Dropdown>
 
-      <Form.TextField
+      <Form.TextArea
         id="purpose"
         title="Purpose"
         placeholder="e.g., for Japanese vocabulary"
