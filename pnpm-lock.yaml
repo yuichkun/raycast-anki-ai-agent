@@ -9,11 +9,11 @@ importers:
   .:
     dependencies:
       '@raycast/api':
-        specifier: ^1.103.5
-        version: 1.103.5(@types/node@22.13.10)(@types/react@19.0.10)
+        specifier: ^1.103.6
+        version: 1.103.6(@types/node@22.13.10)(@types/react@19.0.10)
       '@raycast/utils':
-        specifier: ^1.17.0
-        version: 1.19.1(@raycast/api@1.103.5(@types/node@22.13.10)(@types/react@19.0.10))
+        specifier: ^2.2.2
+        version: 2.2.2(@raycast/api@1.103.6(@types/node@22.13.10)(@types/react@19.0.10))(react@19.0.0)
       markdown-it:
         specifier: 14.1.0
         version: 14.1.0
@@ -414,8 +414,8 @@ packages:
     resolution: {integrity: sha512-CRcqHGdcEL4l5cls5F9FvwKt04LkdG7WyFozOu2vP1/3w34S29zbw8Tx1gAzfBZDDme5ChSaqFXU5qbTLx5yYQ==}
     engines: {node: '>=18.0.0'}
 
-  '@raycast/api@1.103.5':
-    resolution: {integrity: sha512-LPI9bIr+Q6NSy+vhhn8uqy73+oKEZsiUMkW5FDNBw0ngV32atAZH7df4ZGSNba2+HTZKquYdmoEycWeRFnDWRA==}
+  '@raycast/api@1.103.6':
+    resolution: {integrity: sha512-x34deBLt8BNCIztMjsYPU8eGz4xFp444PJzxybIvDt86ZCk6phlTLD11qtkyZKOURFIoncebNDVTJn5KdO09nA==}
     engines: {node: '>=22.14.0'}
     hasBin: true
     peerDependencies:
@@ -442,10 +442,14 @@ packages:
     peerDependencies:
       eslint: '>=8.23.0'
 
-  '@raycast/utils@1.19.1':
-    resolution: {integrity: sha512-/udUGcTZCgZZwzesmjBkqG5naQZTD/ZLHbqRwkWcF+W97vf9tr9raxKyQjKsdZ17OVllw2T3sHBQsVUdEmCm2g==}
+  '@raycast/utils@2.2.2':
+    resolution: {integrity: sha512-tZcyWCHZvz4L/i1CGEnSZkBoK6wwX1pzlTKjcWWugbrQyG0QCMOxjKJfRC/iNkD+hHaqhMWUj4Y0LNo/NknvFw==}
     peerDependencies:
-      '@raycast/api': '>=1.69.0'
+      '@raycast/api': '>=1.99.4'
+      react: '>=19.0.0'
+    peerDependenciesMeta:
+      react:
+        optional: true
 
   '@types/estree@1.0.8':
     resolution: {integrity: sha512-dWHzHa2WqEXI/O1E9OjrocMTKJl2mSrEolh1Iomrv6U+JuNwaHXsXx9bLu5gG7BUWFIN0skIQJQ/L1rIex4X6w==}
@@ -607,9 +611,6 @@ packages:
 
   concat-map@0.0.1:
     resolution: {integrity: sha512-/Srv4dswyQNBfohGpz9o6Yb3Gz3SrUDqBH5rTuhGR7ahtlbYKnVxw2bCFMRljaA7EXHaXZ8wsHdodFvbkhKmqg==}
-
-  cross-fetch@3.2.0:
-    resolution: {integrity: sha512-Q+xVJLoGOeIMXZmbUK4HYk+69cQH6LudR0Vu/pRm2YlU/hDV9CiS0gKUMaWY5f2NeUH9C1nV3bsTlCo0FsTV1Q==}
 
   cross-spawn@7.0.6:
     resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
@@ -911,19 +912,6 @@ packages:
   natural-compare@1.4.0:
     resolution: {integrity: sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==}
 
-  node-fetch@2.7.0:
-    resolution: {integrity: sha512-c4FRfUm/dbcWZ7U+1Wq0AwCyFL+3nt2bEw05wfxSz+DWpWsitgmSgYmy2dQdWyKC1694ELPqMs/YzUSNozLt8A==}
-    engines: {node: 4.x || >=6.0.0}
-    peerDependencies:
-      encoding: ^0.1.0
-    peerDependenciesMeta:
-      encoding:
-        optional: true
-
-  object-hash@3.0.0:
-    resolution: {integrity: sha512-RSn9F68PjH9HqtltsSnqYC1XXoWe9Bju5+213R98cNGttag9q9yAOTzdbsqvIa7aNm5WffBZFpWYr2aWrklWAw==}
-    engines: {node: '>= 6'}
-
   optionator@0.9.4:
     resolution: {integrity: sha512-6IpQ7mKUxRcZNLIObR0hz7lxsapSSIYNZJwXPGeF0mTVqGKFIXj1DQcMoT22S3ROcLyY/rz0PWaWZ9ayWmad9g==}
     engines: {node: '>= 0.8.0'}
@@ -1014,12 +1002,6 @@ packages:
     resolution: {integrity: sha512-bzyZ1e88w9O1iNJbKnOlvYTrWPDl46O1bG0D3XInv+9tkPrxrN8jUUTiFlDkkmKWgn1M6CfIA13SuGqOa9Korw==}
     engines: {node: '>=14'}
 
-  stream-chain@2.2.5:
-    resolution: {integrity: sha512-1TJmBx6aSWqZ4tx7aTpBDXK0/e2hhcNSTV8+CbFJtDjbb+I1mZ8lHit0Grw9GRT+6JbIrrDd8esncgBi8aBXGA==}
-
-  stream-json@1.9.1:
-    resolution: {integrity: sha512-uWkjJ+2Nt/LO9Z/JyKZbMusL8Dkh97uUBTv3AJQ74y07lVahLY4eEFsPsE97pxYBwr8nnjMAIch5eqI0gPShyw==}
-
   string-width@4.2.3:
     resolution: {integrity: sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g==}
     engines: {node: '>=8'}
@@ -1047,9 +1029,6 @@ packages:
   to-regex-range@5.0.1:
     resolution: {integrity: sha512-65P7iz6X5yEr1cwcgvQxbbIw7Uk3gOy5dIdtZ4rDveLqhrdJP+Li/Hx6tyK0NEb+2GCyneCMJiGqrADCSNk8sQ==}
     engines: {node: '>=8.0'}
-
-  tr46@0.0.3:
-    resolution: {integrity: sha512-N3WMsuqV66lT30CrXNbEjx4GEwlow3v6rr4mCcv6prnfwhS01rkgyFdjPNBYd9br7LpXV1+Emh01fHnq2Gdgrw==}
 
   ts-api-utils@2.1.0:
     resolution: {integrity: sha512-CUgTZL1irw8u29bzrOD/nH85jqyc74D6SshFgujOIA7osm2Rz7dYH77agkx7H4FBNxDq7Cjf+IjaX/8zwFW+ZQ==}
@@ -1085,12 +1064,6 @@ packages:
 
   uri-js@4.4.1:
     resolution: {integrity: sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==}
-
-  webidl-conversions@3.0.1:
-    resolution: {integrity: sha512-2JAn3z8AR6rjK8Sm8orRC0h/bcl/DqL7tRPdGZ4I1CjdF+EaMLmYxBHyXuKL849eucPFhvBoxMsflfOb8kxaeQ==}
-
-  whatwg-url@5.0.0:
-    resolution: {integrity: sha512-saE57nupxk6v3HY35+jzBwYa0rKSy0XR8JSxZPwgLr7ys0IBzhGviA1/TUGJLmSVqs8pb9AnvICXEuOHLprYTw==}
 
   which@2.0.2:
     resolution: {integrity: sha512-BLI3Tl1TW3Pvl70l3yq3Y64i+awpwXqsGBYWkkqMtnbXgrMD+yj7rhW0kuEDxzJaYXGjEW5ogapKNMEKNMjibA==}
@@ -1441,7 +1414,7 @@ snapshots:
     transitivePeerDependencies:
       - '@types/node'
 
-  '@raycast/api@1.103.5(@types/node@22.13.10)(@types/react@19.0.10)':
+  '@raycast/api@1.103.6(@types/node@22.13.10)(@types/react@19.0.10)':
     dependencies:
       '@oclif/core': 4.8.0
       '@oclif/plugin-autocomplete': 3.2.39
@@ -1476,17 +1449,12 @@ snapshots:
       - supports-color
       - typescript
 
-  '@raycast/utils@1.19.1(@raycast/api@1.103.5(@types/node@22.13.10)(@types/react@19.0.10))':
+  '@raycast/utils@2.2.2(@raycast/api@1.103.6(@types/node@22.13.10)(@types/react@19.0.10))(react@19.0.0)':
     dependencies:
-      '@raycast/api': 1.103.5(@types/node@22.13.10)(@types/react@19.0.10)
-      cross-fetch: 3.2.0
+      '@raycast/api': 1.103.6(@types/node@22.13.10)(@types/react@19.0.10)
       dequal: 2.0.3
-      object-hash: 3.0.0
-      signal-exit: 4.1.0
-      stream-chain: 2.2.5
-      stream-json: 1.9.1
-    transitivePeerDependencies:
-      - encoding
+    optionalDependencies:
+      react: 19.0.0
 
   '@types/estree@1.0.8': {}
 
@@ -1670,12 +1638,6 @@ snapshots:
   color-name@1.1.4: {}
 
   concat-map@0.0.1: {}
-
-  cross-fetch@3.2.0:
-    dependencies:
-      node-fetch: 2.7.0
-    transitivePeerDependencies:
-      - encoding
 
   cross-spawn@7.0.6:
     dependencies:
@@ -1982,12 +1944,6 @@ snapshots:
 
   natural-compare@1.4.0: {}
 
-  node-fetch@2.7.0:
-    dependencies:
-      whatwg-url: 5.0.0
-
-  object-hash@3.0.0: {}
-
   optionator@0.9.4:
     dependencies:
       deep-is: 0.1.4
@@ -2051,12 +2007,6 @@ snapshots:
 
   signal-exit@4.1.0: {}
 
-  stream-chain@2.2.5: {}
-
-  stream-json@1.9.1:
-    dependencies:
-      stream-chain: 2.2.5
-
   string-width@4.2.3:
     dependencies:
       emoji-regex: 8.0.0
@@ -2085,8 +2035,6 @@ snapshots:
   to-regex-range@5.0.1:
     dependencies:
       is-number: 7.0.0
-
-  tr46@0.0.3: {}
 
   ts-api-utils@2.1.0(typescript@5.9.3):
     dependencies:
@@ -2118,13 +2066,6 @@ snapshots:
   uri-js@4.4.1:
     dependencies:
       punycode: 2.3.1
-
-  webidl-conversions@3.0.1: {}
-
-  whatwg-url@5.0.0:
-    dependencies:
-      tr46: 0.0.3
-      webidl-conversions: 3.0.1
 
   which@2.0.2:
     dependencies:

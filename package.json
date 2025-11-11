@@ -32,8 +32,8 @@
     }
   ],
   "dependencies": {
-    "@raycast/api": "^1.103.5",
-    "@raycast/utils": "^1.17.0",
+    "@raycast/api": "^1.103.6",
+    "@raycast/utils": "^2.2.2",
     "markdown-it": "14.1.0"
   },
   "devDependencies": {
