@@ -10,10 +10,11 @@ export default async function tool(): Promise<string> {
   if (configurations.length === 0) {
     return JSON.stringify(
       {
-        error: "No deck configurations found. Please ask the user to run the 'Configure Anki Decks' command to set up their decks first.",
+        error:
+          "No deck configurations found. Please ask the user to run the 'Configure Anki Decks' command to set up their decks first.",
       },
       null,
-      2
+      2,
     );
   }
 

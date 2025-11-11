@@ -114,7 +114,12 @@ export default function ConfigureDecks() {
               <Action.Push
                 title="Edit Configuration"
                 icon={Icon.Pencil}
-                target={<EditDeckConfigurationForm configuration={configuration} onConfigurationUpdated={loadConfigurations} />}
+                target={
+                  <EditDeckConfigurationForm
+                    configuration={configuration}
+                    onConfigurationUpdated={loadConfigurations}
+                  />
+                }
               />
               <Action.Push
                 title="Add Deck Configuration"
@@ -253,7 +258,9 @@ function AddDeckConfigurationForm({ onConfigurationAdded }: AddDeckConfiguration
         {availableDecks.length === 0 ? (
           <Form.Dropdown.Item value="" title="No available decks (all are already configured)" />
         ) : (
-          availableDecks.map((deck) => <Form.Dropdown.Item key={deck.id} value={deck.id.toString()} title={deck.name} />)
+          availableDecks.map((deck) => (
+            <Form.Dropdown.Item key={deck.id} value={deck.id.toString()} title={deck.name} />
+          ))
         )}
       </Form.Dropdown>
 
@@ -324,7 +331,9 @@ function EditDeckConfigurationForm({ configuration, onConfigurationUpdated }: Ed
 
       const configurations = await getDeckConfigurations();
       // Exclude current deck from the "already configured" set so it appears in the dropdown
-      setExistingConfigurations(new Set(configurations.filter((c) => c.deckId !== configuration.deckId).map((c) => c.deckId)));
+      setExistingConfigurations(
+        new Set(configurations.filter((c) => c.deckId !== configuration.deckId).map((c) => c.deckId)),
+      );
     } catch (error) {
       await showToast({
         style: Toast.Style.Failure,
@@ -431,7 +440,12 @@ function EditDeckConfigurationForm({ configuration, onConfigurationUpdated }: Ed
         info="Describe what this deck is for to help AI select the right deck"
       />
 
-      <Form.Dropdown id="noteType" title="Note Type" defaultValue={configuration.noteType} info="Card type to use for this deck">
+      <Form.Dropdown
+        id="noteType"
+        title="Note Type"
+        defaultValue={configuration.noteType}
+        info="Card type to use for this deck"
+      >
         <Form.Dropdown.Item value="Basic" title="Basic" />
         <Form.Dropdown.Item value="Basic (and reversed card)" title="Basic (and reversed card)" />
       </Form.Dropdown>
