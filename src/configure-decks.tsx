@@ -12,18 +12,18 @@ import {
 } from "@raycast/api";
 import { useEffect, useState } from "react";
 import { checkAnkiConnection, getDecks, DeckInfo } from "./ankiConnect";
-import { getDeckMappings, addDeckMapping, removeDeckMapping, DeckMapping } from "./storage";
+import { getDeckConfigurations, addDeckConfiguration, removeDeckConfiguration, DeckConfiguration } from "./storage";
 
 export default function ConfigureDecks() {
-  const [mappings, setMappings] = useState<DeckMapping[]>([]);
+  const [configurations, setConfigurations] = useState<DeckConfiguration[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [ankiConnected, setAnkiConnected] = useState(false);
 
   useEffect(() => {
-    loadMappings();
+    loadConfigurations();
   }, []);
 
-  async function loadMappings() {
+  async function loadConfigurations() {
     try {
       setIsLoading(true);
 
@@ -31,13 +31,13 @@ export default function ConfigureDecks() {
       const connected = await checkAnkiConnection();
       setAnkiConnected(connected);
 
-      // Load mappings
-      const storedMappings = await getDeckMappings();
-      setMappings(storedMappings);
+      // Load deck configurations
+      const storedConfigurations = await getDeckConfigurations();
+      setConfigurations(storedConfigurations);
     } catch (error) {
       await showToast({
         style: Toast.Style.Failure,
-        title: "Failed to load deck mappings",
+        title: "Failed to load deck configurations",
         message: error instanceof Error ? error.message : "Unknown error",
       });
     } finally {
@@ -45,10 +45,10 @@ export default function ConfigureDecks() {
     }
   }
 
-  async function handleRemoveMapping(deckId: number) {
+  async function handleRemoveConfiguration(deckId: number) {
     const confirmed = await confirmAlert({
-      title: "Remove Deck Mapping",
-      message: "Are you sure you want to remove this deck mapping?",
+      title: "Remove Deck Configuration",
+      message: "Are you sure you want to remove this deck configuration?",
       primaryAction: {
         title: "Remove",
         style: Alert.ActionStyle.Destructive,
@@ -57,16 +57,16 @@ export default function ConfigureDecks() {
 
     if (confirmed) {
       try {
-        await removeDeckMapping(deckId);
+        await removeDeckConfiguration(deckId);
         await showToast({
           style: Toast.Style.Success,
-          title: "Deck mapping removed",
+          title: "Deck configuration removed",
         });
-        await loadMappings();
+        await loadConfigurations();
       } catch (error) {
         await showToast({
           style: Toast.Style.Failure,
-          title: "Failed to remove deck mapping",
+          title: "Failed to remove deck configuration",
           message: error instanceof Error ? error.message : "Unknown error",
         });
       }
@@ -86,46 +86,46 @@ export default function ConfigureDecks() {
   }
 
   return (
-    <List isLoading={isLoading} searchBarPlaceholder="Search deck mappings...">
+    <List isLoading={isLoading} searchBarPlaceholder="Search deck configurations...">
       <List.EmptyView
         icon={Icon.Document}
-        title="No Deck Mappings"
-        description="Add a deck mapping to get started"
+        title="No Deck Configurations"
+        description="Add a deck configuration to get started"
         actions={
           <ActionPanel>
             <Action.Push
-              title="Add Deck Mapping"
+              title="Add Deck Configuration"
               icon={Icon.Plus}
-              target={<AddDeckMappingForm onMappingAdded={loadMappings} />}
+              target={<AddDeckConfigurationForm onConfigurationAdded={loadConfigurations} />}
             />
           </ActionPanel>
         }
       />
 
-      {mappings.map((mapping) => (
+      {configurations.map((configuration) => (
         <List.Item
-          key={mapping.deckId}
-          title={mapping.deckName}
-          subtitle={mapping.purpose}
+          key={configuration.deckId}
+          title={configuration.deckName}
+          subtitle={configuration.purpose}
           icon={Icon.Book}
-          accessories={[{ text: `ID: ${mapping.deckId}` }]}
+          accessories={[{ text: `ID: ${configuration.deckId}` }]}
           actions={
             <ActionPanel>
               <Action.Push
                 title="Edit Configuration"
                 icon={Icon.Pencil}
-                target={<EditDeckMappingForm mapping={mapping} onMappingUpdated={loadMappings} />}
+                target={<EditDeckConfigurationForm configuration={configuration} onConfigurationUpdated={loadConfigurations} />}
               />
               <Action.Push
-                title="Add Deck Mapping"
+                title="Add Deck Configuration"
                 icon={Icon.Plus}
-                target={<AddDeckMappingForm onMappingAdded={loadMappings} />}
+                target={<AddDeckConfigurationForm onConfigurationAdded={loadConfigurations} />}
               />
               <Action
-                title="Remove Deck Mapping"
+                title="Remove Deck Configuration"
                 icon={Icon.Trash}
                 style={Action.Style.Destructive}
-                onAction={() => handleRemoveMapping(mapping.deckId)}
+                onAction={() => handleRemoveConfiguration(configuration.deckId)}
                 shortcut={{ modifiers: ["cmd"], key: "backspace" }}
               />
             </ActionPanel>
@@ -136,15 +136,15 @@ export default function ConfigureDecks() {
   );
 }
 
-interface AddDeckMappingFormProps {
-  onMappingAdded: () => Promise<void>;
+interface AddDeckConfigurationFormProps {
+  onConfigurationAdded: () => Promise<void>;
 }
 
-function AddDeckMappingForm({ onMappingAdded }: AddDeckMappingFormProps) {
+function AddDeckConfigurationForm({ onConfigurationAdded }: AddDeckConfigurationFormProps) {
   const { pop } = useNavigation();
   const [decks, setDecks] = useState<DeckInfo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [existingMappings, setExistingMappings] = useState<Set<number>>(new Set());
+  const [existingConfigurations, setExistingConfigurations] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     loadDecks();
@@ -158,9 +158,9 @@ function AddDeckMappingForm({ onMappingAdded }: AddDeckMappingFormProps) {
       const availableDecks = await getDecks();
       setDecks(availableDecks);
 
-      // Load existing mappings to filter them out
-      const mappings = await getDeckMappings();
-      setExistingMappings(new Set(mappings.map((m) => m.deckId)));
+      // Load existing configurations to filter them out
+      const configurations = await getDeckConfigurations();
+      setExistingConfigurations(new Set(configurations.map((c) => c.deckId)));
     } catch (error) {
       await showToast({
         style: Toast.Style.Failure,
@@ -210,7 +210,7 @@ function AddDeckMappingForm({ onMappingAdded }: AddDeckMappingFormProps) {
     }
 
     try {
-      await addDeckMapping({
+      await addDeckConfiguration({
         deckId: deck.id,
         deckName: deck.name,
         purpose: values.purpose.trim(),
@@ -223,35 +223,35 @@ function AddDeckMappingForm({ onMappingAdded }: AddDeckMappingFormProps) {
 
       await showToast({
         style: Toast.Style.Success,
-        title: "Deck mapping added",
+        title: "Deck configuration added",
       });
 
       pop();
-      await onMappingAdded();
+      await onConfigurationAdded();
     } catch (error) {
       await showToast({
         style: Toast.Style.Failure,
-        title: "Failed to add deck mapping",
+        title: "Failed to add deck configuration",
         message: error instanceof Error ? error.message : "Unknown error",
       });
     }
   }
 
-  // Filter out decks that already have mappings
-  const availableDecks = decks.filter((deck) => !existingMappings.has(deck.id));
+  // Filter out decks that already have configurations
+  const availableDecks = decks.filter((deck) => !existingConfigurations.has(deck.id));
 
   return (
     <Form
       isLoading={isLoading}
       actions={
         <ActionPanel>
-          <Action.SubmitForm title="Add Mapping" icon={Icon.Plus} onSubmit={handleSubmit} />
+          <Action.SubmitForm title="Add Configuration" icon={Icon.Plus} onSubmit={handleSubmit} />
         </ActionPanel>
       }
     >
       <Form.Dropdown id="deckId" title="Deck" placeholder="Select a deck">
         {availableDecks.length === 0 ? (
-          <Form.Dropdown.Item value="" title="No available decks (all are already mapped)" />
+          <Form.Dropdown.Item value="" title="No available decks (all are already configured)" />
         ) : (
           availableDecks.map((deck) => <Form.Dropdown.Item key={deck.id} value={deck.id.toString()} title={deck.name} />)
         )}
@@ -300,16 +300,16 @@ function AddDeckMappingForm({ onMappingAdded }: AddDeckMappingFormProps) {
   );
 }
 
-interface EditDeckMappingFormProps {
-  mapping: DeckMapping;
-  onMappingUpdated: () => Promise<void>;
+interface EditDeckConfigurationFormProps {
+  configuration: DeckConfiguration;
+  onConfigurationUpdated: () => Promise<void>;
 }
 
-function EditDeckMappingForm({ mapping, onMappingUpdated }: EditDeckMappingFormProps) {
+function EditDeckConfigurationForm({ configuration, onConfigurationUpdated }: EditDeckConfigurationFormProps) {
   const { pop } = useNavigation();
   const [decks, setDecks] = useState<DeckInfo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [existingMappings, setExistingMappings] = useState<Set<number>>(new Set());
+  const [existingConfigurations, setExistingConfigurations] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     loadDecks();
@@ -322,9 +322,9 @@ function EditDeckMappingForm({ mapping, onMappingUpdated }: EditDeckMappingFormP
       const availableDecks = await getDecks();
       setDecks(availableDecks);
 
-      const mappings = await getDeckMappings();
-      // Exclude current deck from the "already mapped" set so it appears in the dropdown
-      setExistingMappings(new Set(mappings.filter((m) => m.deckId !== mapping.deckId).map((m) => m.deckId)));
+      const configurations = await getDeckConfigurations();
+      // Exclude current deck from the "already configured" set so it appears in the dropdown
+      setExistingConfigurations(new Set(configurations.filter((c) => c.deckId !== configuration.deckId).map((c) => c.deckId)));
     } catch (error) {
       await showToast({
         style: Toast.Style.Failure,
@@ -374,12 +374,12 @@ function EditDeckMappingForm({ mapping, onMappingUpdated }: EditDeckMappingFormP
     }
 
     try {
-      // If deck changed, remove old mapping first
-      if (newDeckId !== mapping.deckId) {
-        await removeDeckMapping(mapping.deckId);
+      // If deck changed, remove old configuration first
+      if (newDeckId !== configuration.deckId) {
+        await removeDeckConfiguration(configuration.deckId);
       }
 
-      await addDeckMapping({
+      await addDeckConfiguration({
         deckId: deck.id,
         deckName: deck.name,
         purpose: values.purpose.trim(),
@@ -396,7 +396,7 @@ function EditDeckMappingForm({ mapping, onMappingUpdated }: EditDeckMappingFormP
       });
 
       pop();
-      await onMappingUpdated();
+      await onConfigurationUpdated();
     } catch (error) {
       await showToast({
         style: Toast.Style.Failure,
@@ -406,7 +406,7 @@ function EditDeckMappingForm({ mapping, onMappingUpdated }: EditDeckMappingFormP
     }
   }
 
-  const availableDecks = decks.filter((deck) => !existingMappings.has(deck.id));
+  const availableDecks = decks.filter((deck) => !existingConfigurations.has(deck.id));
 
   return (
     <Form
@@ -417,7 +417,7 @@ function EditDeckMappingForm({ mapping, onMappingUpdated }: EditDeckMappingFormP
         </ActionPanel>
       }
     >
-      <Form.Dropdown id="deckId" title="Deck" defaultValue={mapping.deckId.toString()}>
+      <Form.Dropdown id="deckId" title="Deck" defaultValue={configuration.deckId.toString()}>
         {availableDecks.map((deck) => (
           <Form.Dropdown.Item key={deck.id} value={deck.id.toString()} title={deck.name} />
         ))}
@@ -427,11 +427,11 @@ function EditDeckMappingForm({ mapping, onMappingUpdated }: EditDeckMappingFormP
         id="purpose"
         title="Purpose"
         placeholder="e.g., for Japanese vocabulary"
-        defaultValue={mapping.purpose}
+        defaultValue={configuration.purpose}
         info="Describe what this deck is for to help AI select the right deck"
       />
 
-      <Form.Dropdown id="noteType" title="Note Type" defaultValue={mapping.noteType} info="Card type to use for this deck">
+      <Form.Dropdown id="noteType" title="Note Type" defaultValue={configuration.noteType} info="Card type to use for this deck">
         <Form.Dropdown.Item value="Basic" title="Basic" />
         <Form.Dropdown.Item value="Basic (and reversed card)" title="Basic (and reversed card)" />
       </Form.Dropdown>
@@ -440,7 +440,7 @@ function EditDeckMappingForm({ mapping, onMappingUpdated }: EditDeckMappingFormP
         id="frontTemplate"
         title="Front Template"
         placeholder="e.g., Japanese word in hiragana with romaji in parentheses"
-        defaultValue={mapping.frontTemplate}
+        defaultValue={configuration.frontTemplate}
         info="Describe how the front of the card should be formatted"
       />
 
@@ -448,7 +448,7 @@ function EditDeckMappingForm({ mapping, onMappingUpdated }: EditDeckMappingFormP
         id="backTemplate"
         title="Back Template"
         placeholder="e.g., English translation with example sentence"
-        defaultValue={mapping.backTemplate}
+        defaultValue={configuration.backTemplate}
         info="Describe how the back of the card should be formatted"
       />
 
@@ -456,7 +456,7 @@ function EditDeckMappingForm({ mapping, onMappingUpdated }: EditDeckMappingFormP
         id="frontExample"
         title="Front Example"
         placeholder="e.g., 食べる (taberu)"
-        defaultValue={mapping.frontExample}
+        defaultValue={configuration.frontExample}
         info="Show an example of a front card"
       />
 
@@ -464,7 +464,7 @@ function EditDeckMappingForm({ mapping, onMappingUpdated }: EditDeckMappingFormP
         id="backExample"
         title="Back Example"
         placeholder="e.g., to eat - Example: 私は朝ごはんを食べます"
-        defaultValue={mapping.backExample}
+        defaultValue={configuration.backExample}
         info="Show an example of a back card"
       />
     </Form>

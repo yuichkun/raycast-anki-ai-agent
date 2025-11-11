@@ -1,6 +1,6 @@
 import { LocalStorage } from "@raycast/api";
 
-export interface DeckMapping {
+export interface DeckConfiguration {
   deckId: number;
   deckName: string;
   purpose: string;
@@ -11,52 +11,52 @@ export interface DeckMapping {
   backExample: string;
 }
 
-const DECK_MAPPINGS_KEY = "deck-mappings";
+const DECK_CONFIGURATIONS_KEY = "deck-configurations";
 
 /**
- * Get all configured deck mappings
+ * Get all configured deck configurations
  */
-export async function getDeckMappings(): Promise<DeckMapping[]> {
-  const data = await LocalStorage.getItem<string>(DECK_MAPPINGS_KEY);
+export async function getDeckConfigurations(): Promise<DeckConfiguration[]> {
+  const data = await LocalStorage.getItem<string>(DECK_CONFIGURATIONS_KEY);
   if (!data) {
     return [];
   }
-  return JSON.parse(data) as DeckMapping[];
+  return JSON.parse(data) as DeckConfiguration[];
 }
 
 /**
- * Save deck mappings to storage
+ * Save deck configurations to storage
  */
-export async function saveDeckMappings(mappings: DeckMapping[]): Promise<void> {
-  await LocalStorage.setItem(DECK_MAPPINGS_KEY, JSON.stringify(mappings));
+export async function saveDeckConfigurations(configurations: DeckConfiguration[]): Promise<void> {
+  await LocalStorage.setItem(DECK_CONFIGURATIONS_KEY, JSON.stringify(configurations));
 }
 
 /**
- * Add a new deck mapping
+ * Add a new deck configuration
  */
-export async function addDeckMapping(mapping: DeckMapping): Promise<void> {
-  const mappings = await getDeckMappings();
+export async function addDeckConfiguration(configuration: DeckConfiguration): Promise<void> {
+  const configurations = await getDeckConfigurations();
 
-  // Remove existing mapping for the same deck if any
-  const filtered = mappings.filter((m) => m.deckId !== mapping.deckId);
+  // Remove existing configuration for the same deck if any
+  const filtered = configurations.filter((c) => c.deckId !== configuration.deckId);
 
-  filtered.push(mapping);
-  await saveDeckMappings(filtered);
+  filtered.push(configuration);
+  await saveDeckConfigurations(filtered);
 }
 
 /**
- * Remove a deck mapping by deck ID
+ * Remove a deck configuration by deck ID
  */
-export async function removeDeckMapping(deckId: number): Promise<void> {
-  const mappings = await getDeckMappings();
-  const filtered = mappings.filter((m) => m.deckId !== deckId);
-  await saveDeckMappings(filtered);
+export async function removeDeckConfiguration(deckId: number): Promise<void> {
+  const configurations = await getDeckConfigurations();
+  const filtered = configurations.filter((c) => c.deckId !== deckId);
+  await saveDeckConfigurations(filtered);
 }
 
 /**
- * Check if a deck is already mapped
+ * Check if a deck configuration already exists
  */
-export async function isDeckMapped(deckId: number): Promise<boolean> {
-  const mappings = await getDeckMappings();
-  return mappings.some((m) => m.deckId === deckId);
+export async function isDeckConfigured(deckId: number): Promise<boolean> {
+  const configurations = await getDeckConfigurations();
+  return configurations.some((c) => c.deckId === deckId);
 }

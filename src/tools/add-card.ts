@@ -1,5 +1,5 @@
 import { Tool } from "@raycast/api";
-import { getDeckMappings } from "../storage";
+import { getDeckConfigurations } from "../storage";
 import { checkAnkiConnection, addNote, findNotes, notesInfo } from "../ankiConnect";
 import MarkdownIt from "markdown-it";
 
@@ -66,14 +66,14 @@ export default async function tool(input: Input): Promise<string> {
   }
 
   // Validate deck configuration
-  const mappings = await getDeckMappings();
-  if (mappings.length === 0) {
+  const configurations = await getDeckConfigurations();
+  if (configurations.length === 0) {
     return "❌ No deck configurations found.\n\nPlease ask the user to run the 'Configure Anki Decks' command to set up their decks first.";
   }
 
-  // Check if the requested deck ID is in the configured mappings
-  const deckMapping = mappings.find((m) => m.deckId === input.deckId);
-  if (!deckMapping) {
+  // Check if the requested deck ID is in the configured deck configurations
+  const deckConfiguration = configurations.find((c) => c.deckId === input.deckId);
+  if (!deckConfiguration) {
     return `❌ Validation error: Deck ID ${input.deckId} is not configured.\n\n**Please call get-deck-configurations first** to see available deck IDs.`;
   }
 
@@ -89,7 +89,7 @@ export default async function tool(input: Input): Promise<string> {
 
   // Check for duplicates
   try {
-    const duplicateIds = await findNotes(`deck:"${deckMapping.deckName}" ${input.Front}`);
+    const duplicateIds = await findNotes(`deck:"${deckConfiguration.deckName}" ${input.Front}`);
     if (duplicateIds.length > 0) {
       const duplicateInfo = await notesInfo(duplicateIds);
       const existingCards = duplicateInfo
@@ -111,8 +111,8 @@ export default async function tool(input: Input): Promise<string> {
   // Create the card using deck's configured note type
   try {
     const noteId = await addNote({
-      deckName: deckMapping.deckName,
-      modelName: deckMapping.noteType,
+      deckName: deckConfiguration.deckName,
+      modelName: deckConfiguration.noteType,
       fields,
       tags,
     });
@@ -121,10 +121,10 @@ export default async function tool(input: Input): Promise<string> {
       .map(([key, value]) => `  ${key}: ${value}`)
       .join("\n");
 
-    return `✅ Card created successfully!\n\nDeck: ${deckMapping.deckName}\nNote Type: ${deckMapping.noteType}\nNote ID: ${noteId}\n\nFields:\n${fieldsText}${tags.length > 0 ? `\n\nTags: ${tags.join(", ")}` : ""}`;
+    return `✅ Card created successfully!\n\nDeck: ${deckConfiguration.deckName}\nNote Type: ${deckConfiguration.noteType}\nNote ID: ${noteId}\n\nFields:\n${fieldsText}${tags.length > 0 ? `\n\nTags: ${tags.join(", ")}` : ""}`;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
-    return `❌ Failed to create card: ${errorMessage}\n\nPlease check:\n1. The note type "${deckMapping.noteType}" exists in Anki\n2. All required fields are provided\n3. The deck "${deckMapping.deckName}" exists`;
+    return `❌ Failed to create card: ${errorMessage}\n\nPlease check:\n1. The note type "${deckConfiguration.noteType}" exists in Anki\n2. All required fields are provided\n3. The deck "${deckConfiguration.deckName}" exists`;
   }
 }
 
@@ -133,10 +133,10 @@ export default async function tool(input: Input): Promise<string> {
  */
 export const confirmation: Tool.Confirmation<Input> = async (input) => {
   // Get deck configuration for display
-  const mappings = await getDeckMappings();
-  const deckMapping = mappings.find((m) => m.deckId === input.deckId);
-  const deckName = deckMapping ? deckMapping.deckName : `Deck ID ${input.deckId}`;
-  const noteType = deckMapping ? deckMapping.noteType : "Unknown";
+  const configurations = await getDeckConfigurations();
+  const deckConfiguration = configurations.find((c) => c.deckId === input.deckId);
+  const deckName = deckConfiguration ? deckConfiguration.deckName : `Deck ID ${input.deckId}`;
+  const noteType = deckConfiguration ? deckConfiguration.noteType : "Unknown";
 
   const tags = input.tags ? input.tags.split(",").map((t) => t.trim()) : [];
 

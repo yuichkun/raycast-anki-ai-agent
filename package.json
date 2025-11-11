@@ -15,7 +15,7 @@
     {
       "name": "configure-decks",
       "title": "Configure Anki Decks",
-      "description": "Configure deck mappings for Anki card creation",
+      "description": "Set up deck settings for Anki card creation",
       "mode": "view"
     }
   ],
