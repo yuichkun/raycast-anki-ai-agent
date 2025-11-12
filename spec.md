@@ -94,7 +94,7 @@ A separate Raycast command (non-AI) that provides a List interface where users c
 
 Users only configure the decks they want to use, not all available decks.
 
-### 3. Storage Layer
+### 4. Storage Layer
 
 - **Format**: JSON
 - **Location**: Raycast's extension storage
