@@ -10,6 +10,7 @@ import {
   Toast,
   useNavigation,
 } from "@raycast/api";
+import { showFailureToast } from "@raycast/utils";
 import { useEffect, useState } from "react";
 import { checkAnkiConnection, getDecks, DeckInfo } from "./ankiConnect";
 import { getDeckConfigurations, addDeckConfiguration, removeDeckConfiguration, DeckConfiguration } from "./storage";
@@ -35,11 +36,7 @@ export default function ConfigureDecks() {
       const storedConfigurations = await getDeckConfigurations();
       setConfigurations(storedConfigurations);
     } catch (error) {
-      await showToast({
-        style: Toast.Style.Failure,
-        title: "Failed to load deck configurations",
-        message: error instanceof Error ? error.message : "Unknown error",
-      });
+      await showFailureToast(error, { title: "Failed to load deck configurations" });
     } finally {
       setIsLoading(false);
     }
@@ -64,11 +61,7 @@ export default function ConfigureDecks() {
         });
         await loadConfigurations();
       } catch (error) {
-        await showToast({
-          style: Toast.Style.Failure,
-          title: "Failed to remove deck configuration",
-          message: error instanceof Error ? error.message : "Unknown error",
-        });
+        await showFailureToast(error, { title: "Failed to remove deck configuration" });
       }
     }
   }
@@ -167,11 +160,7 @@ function AddDeckConfigurationForm({ onConfigurationAdded }: AddDeckConfiguration
       const configurations = await getDeckConfigurations();
       setExistingConfigurations(new Set(configurations.map((c) => c.deckId)));
     } catch (error) {
-      await showToast({
-        style: Toast.Style.Failure,
-        title: "Failed to load decks",
-        message: error instanceof Error ? error.message : "Unknown error",
-      });
+      await showFailureToast(error, { title: "Failed to load decks" });
     } finally {
       setIsLoading(false);
     }
@@ -195,11 +184,7 @@ function AddDeckConfigurationForm({ onConfigurationAdded }: AddDeckConfiguration
       !values.frontExample.trim() ||
       !values.backExample.trim()
     ) {
-      await showToast({
-        style: Toast.Style.Failure,
-        title: "Invalid input",
-        message: "Please fill in all required fields",
-      });
+      await showFailureToast("Please fill in all required fields", { title: "Invalid input" });
       return;
     }
 
@@ -207,10 +192,7 @@ function AddDeckConfigurationForm({ onConfigurationAdded }: AddDeckConfiguration
     const deck = decks.find((d) => d.id === deckId);
 
     if (!deck) {
-      await showToast({
-        style: Toast.Style.Failure,
-        title: "Deck not found",
-      });
+      await showFailureToast("Deck not found", { title: "Deck not found" });
       return;
     }
 
@@ -234,11 +216,7 @@ function AddDeckConfigurationForm({ onConfigurationAdded }: AddDeckConfiguration
       pop();
       await onConfigurationAdded();
     } catch (error) {
-      await showToast({
-        style: Toast.Style.Failure,
-        title: "Failed to add deck configuration",
-        message: error instanceof Error ? error.message : "Unknown error",
-      });
+      await showFailureToast(error, { title: "Failed to add deck configuration" });
     }
   }
 
@@ -335,11 +313,7 @@ function EditDeckConfigurationForm({ configuration, onConfigurationUpdated }: Ed
         new Set(configurations.filter((c) => c.deckId !== configuration.deckId).map((c) => c.deckId)),
       );
     } catch (error) {
-      await showToast({
-        style: Toast.Style.Failure,
-        title: "Failed to load decks",
-        message: error instanceof Error ? error.message : "Unknown error",
-      });
+      await showFailureToast(error, { title: "Failed to load decks" });
     } finally {
       setIsLoading(false);
     }
@@ -363,11 +337,7 @@ function EditDeckConfigurationForm({ configuration, onConfigurationUpdated }: Ed
       !values.frontExample.trim() ||
       !values.backExample.trim()
     ) {
-      await showToast({
-        style: Toast.Style.Failure,
-        title: "Invalid input",
-        message: "Please fill in all required fields",
-      });
+      await showFailureToast("Please fill in all required fields", { title: "Invalid input" });
       return;
     }
 
@@ -375,10 +345,7 @@ function EditDeckConfigurationForm({ configuration, onConfigurationUpdated }: Ed
     const deck = decks.find((d) => d.id === newDeckId);
 
     if (!deck) {
-      await showToast({
-        style: Toast.Style.Failure,
-        title: "Deck not found",
-      });
+      await showFailureToast("Deck not found", { title: "Deck not found" });
       return;
     }
 
@@ -407,11 +374,7 @@ function EditDeckConfigurationForm({ configuration, onConfigurationUpdated }: Ed
       pop();
       await onConfigurationUpdated();
     } catch (error) {
-      await showToast({
-        style: Toast.Style.Failure,
-        title: "Failed to update configuration",
-        message: error instanceof Error ? error.message : "Unknown error",
-      });
+      await showFailureToast(error, { title: "Failed to update configuration" });
     }
   }
 
