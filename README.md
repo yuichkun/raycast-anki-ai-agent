@@ -126,3 +126,22 @@ The AI will:
 - **Duplicate detection** - Warns if similar cards already exist
 - **Batch operations** - Create multiple cards in one message
 - **Confirmation dialogs** - Review before creating each card
+- **Export/Import configurations** - Backup and share your deck settings
+
+## Export/Import Configurations
+
+You can export your deck configurations to share with others or back up your settings.
+
+### Export
+
+- **Export all**: In the deck list, select "Export All Configurations" (`Cmd+Shift+E` / `Ctrl+Shift+E`)
+- **Export single**: In the edit form, select "Export This Configuration" (`Cmd+E` / `Ctrl+E`)
+
+The configuration is copied to your clipboard as JSON.
+
+### Import
+
+- **Import all**: In the deck list, select "Import Configurations" (`Cmd+Shift+I` / `Ctrl+Shift+I`)
+- **Import single**: In the edit form, select "Import Configuration" (`Cmd+I` / `Ctrl+I`)
+
+Paste your JSON configuration, then run the import. Existing configurations with the same deck ID will be overwritten.
