@@ -5,6 +5,7 @@
   "description": "Raycast extension to create Anki flashcards through AI chat",
   "icon": "extension-icon.png",
   "author": "yuichkun",
+  "owner": "anki-ai-agent",
   "platforms": [
     "macOS",
     "Windows"
