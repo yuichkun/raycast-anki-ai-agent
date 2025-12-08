@@ -14,9 +14,7 @@ const DeckConfigurationSchema = v.object({
 
 const ImportSchema = v.pipe(v.array(DeckConfigurationSchema), v.minLength(1));
 
-export type ValidationResult =
-  | { success: true; data: DeckConfiguration[] }
-  | { success: false; error: string };
+export type ValidationResult = { success: true; data: DeckConfiguration[] } | { success: false; error: string };
 
 export function validateAndParseConfigurations(text: string): ValidationResult {
   let parsed: unknown;
