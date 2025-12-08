@@ -1,6 +1,7 @@
 import { Tool } from "@raycast/api";
 import { getDeckConfigurations } from "../storage";
-import { checkAnkiConnection, addNote, findNotes, notesInfo } from "../ankiConnect";
+import { addNote, findNotes, notesInfo } from "../ankiConnect";
+import { ensureAnkiRunning } from "../ankiLauncher";
 import MarkdownIt from "markdown-it";
 
 // Configure markdown-it for Anki cards
@@ -59,10 +60,10 @@ export default async function tool(input: Input): Promise<string> {
     return "❌ Validation error: Back field is required.";
   }
 
-  // Check if Anki is running
-  const ankiConnected = await checkAnkiConnection();
-  if (!ankiConnected) {
-    return "❌ Cannot connect to Anki. Please make sure:\n1. Anki is running\n2. AnkiConnect plugin is installed (code: 2055492159)";
+  // Ensure Anki is running (auto-launch if needed)
+  const launchResult = await ensureAnkiRunning();
+  if (!launchResult.success) {
+    return `❌ ${launchResult.error}`;
   }
 
   // Validate deck configuration

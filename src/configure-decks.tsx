@@ -13,7 +13,8 @@ import {
 } from "@raycast/api";
 import { showFailureToast } from "@raycast/utils";
 import { useEffect, useState } from "react";
-import { checkAnkiConnection, getDecks, DeckInfo } from "./ankiConnect";
+import { getDecks, DeckInfo } from "./ankiConnect";
+import { ensureAnkiRunning } from "./ankiLauncher";
 import { getDeckConfigurations, addDeckConfiguration, removeDeckConfiguration, DeckConfiguration } from "./storage";
 import { validateAndParseConfigurations } from "./validation";
 
@@ -30,9 +31,9 @@ export default function ConfigureDecks() {
     try {
       setIsLoading(true);
 
-      // Check Anki connection
-      const connected = await checkAnkiConnection();
-      setAnkiConnected(connected);
+      // Ensure Anki is running (auto-launch if needed)
+      const launchResult = await ensureAnkiRunning();
+      setAnkiConnected(launchResult.success);
 
       // Load deck configurations
       const storedConfigurations = await getDeckConfigurations();
