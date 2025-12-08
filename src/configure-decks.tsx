@@ -2,6 +2,7 @@ import {
   Action,
   ActionPanel,
   Alert,
+  Clipboard,
   confirmAlert,
   Form,
   Icon,
@@ -40,6 +41,23 @@ export default function ConfigureDecks() {
     } finally {
       setIsLoading(false);
     }
+  }
+
+  async function handleExportAll() {
+    if (configurations.length === 0) {
+      await showToast({
+        style: Toast.Style.Failure,
+        title: "No configurations to export",
+      });
+      return;
+    }
+    const json = JSON.stringify(configurations, null, 2);
+    await Clipboard.copy(json);
+    await showToast({
+      style: Toast.Style.Success,
+      title: "Exported to clipboard",
+      message: `${configurations.length} configuration(s)`,
+    });
   }
 
   async function handleRemoveConfiguration(deckId: number) {
@@ -125,6 +143,12 @@ export default function ConfigureDecks() {
                 style={Action.Style.Destructive}
                 onAction={() => handleRemoveConfiguration(configuration.deckId)}
                 shortcut={{ modifiers: ["cmd"], key: "backspace" }}
+              />
+              <Action
+                title="Export All Configurations"
+                icon={Icon.Upload}
+                onAction={handleExportAll}
+                shortcut={{ modifiers: ["cmd", "shift"], key: "e" }}
               />
             </ActionPanel>
           }
@@ -378,6 +402,16 @@ function EditDeckConfigurationForm({ configuration, onConfigurationUpdated }: Ed
     }
   }
 
+  async function handleExportSingle() {
+    const json = JSON.stringify([configuration], null, 2);
+    await Clipboard.copy(json);
+    await showToast({
+      style: Toast.Style.Success,
+      title: "Exported to clipboard",
+      message: configuration.deckName,
+    });
+  }
+
   const availableDecks = decks.filter((deck) => !existingConfigurations.has(deck.id));
 
   return (
@@ -386,6 +420,12 @@ function EditDeckConfigurationForm({ configuration, onConfigurationUpdated }: Ed
       actions={
         <ActionPanel>
           <Action.SubmitForm title="Update Configuration" icon={Icon.Check} onSubmit={handleSubmit} />
+          <Action
+            title="Export This Configuration"
+            icon={Icon.Upload}
+            onAction={handleExportSingle}
+            shortcut={{ modifiers: ["cmd"], key: "e" }}
+          />
         </ActionPanel>
       }
     >
