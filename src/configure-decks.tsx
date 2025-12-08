@@ -15,6 +15,7 @@ import { showFailureToast } from "@raycast/utils";
 import { useEffect, useState } from "react";
 import { checkAnkiConnection, getDecks, DeckInfo } from "./ankiConnect";
 import { getDeckConfigurations, addDeckConfiguration, removeDeckConfiguration, DeckConfiguration } from "./storage";
+import { validateAndParseConfigurations } from "./validation";
 
 export default function ConfigureDecks() {
   const [configurations, setConfigurations] = useState<DeckConfiguration[]>([]);
@@ -57,6 +58,31 @@ export default function ConfigureDecks() {
       style: Toast.Style.Success,
       title: "Exported to clipboard",
       message: `${configurations.length} configuration(s)`,
+    });
+  }
+
+  async function handleImport() {
+    const text = await Clipboard.readText();
+    if (!text) {
+      await showFailureToast("Clipboard is empty");
+      return;
+    }
+
+    const result = validateAndParseConfigurations(text);
+    if (!result.success) {
+      await showFailureToast(result.error, { title: "Import failed" });
+      return;
+    }
+
+    for (const config of result.data) {
+      await addDeckConfiguration(config);
+    }
+
+    await loadConfigurations();
+    await showToast({
+      style: Toast.Style.Success,
+      title: "Imported successfully",
+      message: `${result.data.length} configuration(s)`,
     });
   }
 
@@ -109,6 +135,12 @@ export default function ConfigureDecks() {
               icon={Icon.Plus}
               target={<AddDeckConfigurationForm onConfigurationAdded={loadConfigurations} />}
             />
+            <Action
+              title="Import Configurations"
+              icon={Icon.Download}
+              onAction={handleImport}
+              shortcut={{ modifiers: ["cmd", "shift"], key: "i" }}
+            />
           </ActionPanel>
         }
       />
@@ -149,6 +181,12 @@ export default function ConfigureDecks() {
                 icon={Icon.Upload}
                 onAction={handleExportAll}
                 shortcut={{ modifiers: ["cmd", "shift"], key: "e" }}
+              />
+              <Action
+                title="Import Configurations"
+                icon={Icon.Download}
+                onAction={handleImport}
+                shortcut={{ modifiers: ["cmd", "shift"], key: "i" }}
               />
             </ActionPanel>
           }
@@ -412,6 +450,37 @@ function EditDeckConfigurationForm({ configuration, onConfigurationUpdated }: Ed
     });
   }
 
+  async function handleImportSingle() {
+    const text = await Clipboard.readText();
+    if (!text) {
+      await showFailureToast("Clipboard is empty");
+      return;
+    }
+
+    const result = validateAndParseConfigurations(text);
+    if (!result.success) {
+      await showFailureToast(result.error, { title: "Import failed" });
+      return;
+    }
+
+    if (result.data.length !== 1) {
+      await showFailureToast("Expected exactly 1 configuration", { title: "Import failed" });
+      return;
+    }
+
+    await removeDeckConfiguration(configuration.deckId);
+    await addDeckConfiguration(result.data[0]);
+
+    await showToast({
+      style: Toast.Style.Success,
+      title: "Imported successfully",
+      message: result.data[0].deckName,
+    });
+
+    pop();
+    await onConfigurationUpdated();
+  }
+
   const availableDecks = decks.filter((deck) => !existingConfigurations.has(deck.id));
 
   return (
@@ -425,6 +494,12 @@ function EditDeckConfigurationForm({ configuration, onConfigurationUpdated }: Ed
             icon={Icon.Upload}
             onAction={handleExportSingle}
             shortcut={{ modifiers: ["cmd"], key: "e" }}
+          />
+          <Action
+            title="Import Configuration"
+            icon={Icon.Download}
+            onAction={handleImportSingle}
+            shortcut={{ modifiers: ["cmd"], key: "i" }}
           />
         </ActionPanel>
       }
