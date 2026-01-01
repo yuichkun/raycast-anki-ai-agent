@@ -2,10 +2,48 @@
 
 Create Anki flashcards through natural conversation with AI in Raycast.
 
+- [Anki AI Agent](#anki-ai-agent)
+  - [Screenshots](#screenshots)
+  - [Installation](#installation)
+    - [1. Join the Organization](#1-join-the-organization)
+    - [2. Install the Extension](#2-install-the-extension)
+  - [Setup](#setup)
+    - [1. Install Prerequisites](#1-install-prerequisites)
+    - [2. Configure Your Decks](#2-configure-your-decks)
+      - [Complete Example: Spanish Vocabulary Deck](#complete-example-spanish-vocabulary-deck)
+    - [3. Create Cards](#3-create-cards)
+  - [Features](#features)
+  - [Export/Import Configurations](#exportimport-configurations)
+    - [Export](#export)
+    - [Import](#import)
+
+<!-- tocstop -->
+
 ## Screenshots
 
 ![AI Chat Creating Cards](./metadata/ai-chat.png)
 ![Cards in Anki](./metadata/anki.png)
+
+## Installation
+
+This extension is available through the **Anki AI Agent** Raycast organization's private store.
+
+### 1. Join the Organization
+
+Click the invitation link below to join:
+
+**[👉 Join Anki AI Agent Organization](https://www.raycast.com/invite/846fd68b)**
+
+<!-- TODO: スクショを追加 - Organization参加確認画面 -->
+![join-organization](./metadata/accept-invitation.png)
+
+### 2. Install the Extension
+
+1. Open Raycast and run the **Store** command
+2. Filter by **Anki AI Agent** team (use the dropdown filter)
+3. Find "Anki AI Agent" and press `Enter` to install
+
+![install](./metadata/install.jpg)
 
 ## Setup
 
@@ -13,7 +51,7 @@ Create Anki flashcards through natural conversation with AI in Raycast.
 
 - **[Anki Desktop](https://apps.ankiweb.net/)** - Must be running while using this extension
 - **[AnkiConnect Plugin](https://ankiweb.net/shared/info/2055492159)** - Install in Anki (code: `2055492159`)
-- **Raycast Pro** - Required for AI features
+- **Raycast AI** - Either [Raycast Pro](https://www.raycast.com/pro) subscription OR set up [BYOK (Bring Your Own Key)](https://manual.raycast.com/ai) with your own API key
 
 ### 2. Configure Your Decks
 
