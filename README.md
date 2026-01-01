@@ -1,5 +1,7 @@
 # Anki AI Agent
 
+🌐 [日本語](./README.ja.md) | [简体中文](./README.zh-CN.md)
+
 Create Anki flashcards through natural conversation with AI in Raycast.
 
 - [Anki AI Agent](#anki-ai-agent)
